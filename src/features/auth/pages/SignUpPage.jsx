@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../../assets/images/Horr logo.png";
+import { register } from "../../../services/authService";
 
 function EyeIcon({ visible }) {
   return visible ? (
@@ -40,11 +41,52 @@ function MicrosoftIcon() {
 }
 
 export default function SignUpPage() {
+  const navigate = useNavigate();
   const [role, setRole] = useState("freelancer");
   const [showPass, setShowPass] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState([]);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setErrors([]);
+    setSuccessMessage("");
+
+    const payload = {
+      email: form.email,
+      fullName: form.name,
+      phoneNumber: form.phone,
+      password: form.password,
+      role: role === "freelancer" ? 1 : 0
+    };
+
+    try {
+      const response = await register(payload);
+      setSuccessMessage(response.message);
+      setForm({ name: "", email: "", phone: "", password: "" }); // Clear form on success
+      setTimeout(() => {
+        navigate("/login");
+      }, 2500); // Redirect after 2.5 seconds
+    } catch (err) {
+      console.error("Full Registration Error:", err);
+      if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        setErrors(err.response.data.errors);
+      } else if (err.response?.data?.message) {
+        setErrors([err.response.data.message]);
+      } else if (err.message) {
+        setErrors([`Error: ${err.message}. (Is the backend running on port 5107?)`]);
+      } else {
+        setErrors(["An unexpected error occurred. Please try again later."]);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
@@ -82,6 +124,22 @@ export default function SignUpPage() {
             Client
           </button>
         </div>
+
+        <form onSubmit={handleSubmit}>
+          {errors.length > 0 && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-[8px] text-[13px]">
+              <ul className="list-disc pl-4">
+                {errors.map((err, i) => (
+                  <li key={i}>{err}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {successMessage && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-[8px] text-[13px] font-medium text-center">
+              {successMessage}
+            </div>
+          )}
 
         {/* Full Name */}
         <div className="mb-[16px]">
@@ -152,9 +210,10 @@ export default function SignUpPage() {
         </div>
 
         {/* Sign Up Button */}
-        <button className="w-full py-[12px] rounded-[8px] bg-[#1a2332] hover:bg-[#243048] text-white text-[15px] font-semibold tracking-wide shadow-md hover:shadow-lg hover:-translate-y-[1px] active:scale-[0.98] transition-all duration-200">
-          Sign Up
+        <button type="submit" disabled={isLoading} className="w-full py-[12px] rounded-[8px] bg-[#1a2332] hover:bg-[#243048] text-white text-[15px] font-semibold tracking-wide shadow-md hover:shadow-lg hover:-translate-y-[1px] active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed">
+          {isLoading ? "Signing Up..." : "Sign Up"}
         </button>
+        </form>
 
         {/* Sign In Link */}
         <p className="text-center mt-5 text-[13px] text-gray-500">

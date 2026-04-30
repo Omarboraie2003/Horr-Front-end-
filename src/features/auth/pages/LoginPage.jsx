@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../../assets/images/Horr logo.png";
+import { login } from "../../../services/authService";
 
 function EyeIcon({ visible }) {
   return visible ? (
@@ -40,11 +41,47 @@ function MicrosoftIcon() {
 }
 
 export default function LoginPage() {
+  const navigate = useNavigate();
   const [role, setRole] = useState("freelancer");
   const [showPass, setShowPass] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState([]);
 
   const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setErrors([]);
+
+    const payload = {
+      email: form.email,
+      password: form.password
+    };
+
+    try {
+      const response = await login(payload);
+      // Backend returns the token directly on success
+      localStorage.setItem("token", response);
+      navigate("/");
+    } catch (err) {
+      console.error("Full Login Error:", err);
+      if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        setErrors(err.response.data.errors);
+      } else if (err.response?.data?.message) {
+        setErrors([err.response.data.message]);
+      } else if (typeof err.response?.data === "string") {
+        setErrors([err.response.data]);
+      } else if (err.message) {
+        setErrors([`Error: ${err.message}`]);
+      } else {
+        setErrors(["Invalid credentials."]);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
@@ -82,6 +119,17 @@ export default function LoginPage() {
             Client
           </button>
         </div>
+
+        <form onSubmit={handleSubmit}>
+          {errors.length > 0 && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-[8px] text-[13px]">
+              <ul className="list-disc pl-4">
+                {errors.map((err, i) => (
+                  <li key={i}>{err}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
         {/* Email */}
         <div className="mb-[16px]">
@@ -130,9 +178,10 @@ export default function LoginPage() {
         </div>
 
         {/* Sign In Button */}
-        <button className="w-full py-[12px] rounded-[8px] bg-[#1a2332] hover:bg-[#243048] text-white text-[15px] font-semibold tracking-wide shadow-md hover:shadow-lg hover:-translate-y-[1px] active:scale-[0.98] transition-all duration-200">
-          Sign In
+        <button type="submit" disabled={isLoading} className="w-full py-[12px] rounded-[8px] bg-[#1a2332] hover:bg-[#243048] text-white text-[15px] font-semibold tracking-wide shadow-md hover:shadow-lg hover:-translate-y-[1px] active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed">
+          {isLoading ? "Signing In..." : "Sign In"}
         </button>
+        </form>
 
         {/* Sign Up Link */}
         <p className="text-center mt-5 text-[13px] text-gray-500">
