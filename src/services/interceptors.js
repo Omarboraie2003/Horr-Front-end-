@@ -1,7 +1,10 @@
 export const setupInterceptors = (axiosInstance) => {
   axiosInstance.interceptors.request.use(
     (config) => {
-      // Modify request before it is sent (e.g., attach auth token)
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
       return config;
     },
     (error) => {
@@ -14,7 +17,10 @@ export const setupInterceptors = (axiosInstance) => {
       return response;
     },
     (error) => {
-      // Handle global response errors (e.g., redirect on 401)
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
       return Promise.reject(error);
     }
   );

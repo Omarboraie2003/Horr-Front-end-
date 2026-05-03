@@ -64,7 +64,7 @@ export default function LoginPage() {
       const response = await login(payload);
       // Backend returns the token directly on success
       localStorage.setItem("token", response);
-      navigate("/");
+      navigate("/client/dashboard");
     } catch (err) {
       console.error("Full Login Error:", err);
       if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
@@ -74,7 +74,7 @@ export default function LoginPage() {
       } else if (typeof err.response?.data === "string") {
         setErrors([err.response.data]);
       } else if (err.message) {
-        setErrors([`Error: ${err.message}`]);
+        setErrors([`Error: ${err.message}. (Is the backend running on port 5200?)`]);
       } else {
         setErrors(["Invalid credentials."]);
       }

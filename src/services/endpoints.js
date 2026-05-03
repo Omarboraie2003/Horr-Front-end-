@@ -6,5 +6,9 @@ export const ENDPOINTS = {
   USER: {
     PROFILE: '/user/profile',
   },
-  // Add feature-specific endpoints here
+  CLIENT: {
+    ME: '/client/me',
+    ONBOARDING: '/client/onboarding',
+    JOBS: '/client/jobs',
+  },
 };

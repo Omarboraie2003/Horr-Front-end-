@@ -57,9 +57,14 @@ export default function SignUpPage() {
     setErrors([]);
     setSuccessMessage("");
 
+    const nameParts = form.name.trim().split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
+
     const payload = {
       email: form.email,
-      fullName: form.name,
+      firstName: firstName,
+      lastName: lastName,
       phoneNumber: form.phone,
       password: form.password,
       role: role === "freelancer" ? 1 : 0
@@ -79,7 +84,7 @@ export default function SignUpPage() {
       } else if (err.response?.data?.message) {
         setErrors([err.response.data.message]);
       } else if (err.message) {
-        setErrors([`Error: ${err.message}. (Is the backend running on port 5107?)`]);
+        setErrors([`Error: ${err.message}. (Is the backend running on port 5200?)`]);
       } else {
         setErrors(["An unexpected error occurred. Please try again later."]);
       }
