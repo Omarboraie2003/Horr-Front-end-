@@ -1,2 +1,1 @@
-// Placeholder for future jobs-related components
-export const JobsPlaceholder = () => null;
+export { default as PostJobPage } from './pages/PostJobPage';

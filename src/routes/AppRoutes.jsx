@@ -5,6 +5,7 @@ import AuthLayout from '../layouts/AuthLayout';
 import SignUpPage from '../features/auth/pages/SignUpPage';
 import LoginPage from '../features/auth/pages/LoginPage';
 import ClientDashboard from '../features/dashboard/pages/ClientDashboard';
+import { PostJobPage } from '../features/jobs';
 
 const AppRoutes = () => {
   return (
@@ -18,6 +19,7 @@ const AppRoutes = () => {
       <Route element={<MainLayout />}>
         {/* Main app routes will go here */}
         <Route path="/client/dashboard" element={<ClientDashboard />} />
+        <Route path="/client/post-job" element={<PostJobPage />} />
         <Route path="/" element={<Navigate to="/client/dashboard" replace />} />
       </Route>
     </Routes>

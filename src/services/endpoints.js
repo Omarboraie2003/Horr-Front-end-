@@ -11,4 +11,10 @@ export const ENDPOINTS = {
     ONBOARDING: '/client/onboarding',
     JOBS: '/client/jobs',
   },
+  JOBS: {
+    CREATE: '/Jobs/create-job',
+    LIST: '/Jobs/jobs',
+  },
+  CATEGORIES: '/Categories',
+  SKILLS: '/Skills',
 };
