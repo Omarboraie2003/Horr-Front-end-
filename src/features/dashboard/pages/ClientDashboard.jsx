@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
-import Navbar from "../../../components/layout/Navbar";
-import { getClientProfile, getOnboardingStatus, getClientJobs } from "../../../services/clientService";
+import { useState } from "react";
+import { getOnboardingStatus, getClientJobs } from "../../../services/clientService";
+import useAuth from "../../auth/hooks/useAuth";
+import useFetch from "../../../hooks/useFetch";
 
 /**
  * ClientDashboard Page
@@ -99,37 +100,24 @@ function Skeleton({ height = 120, width = "100%", radius = 10 }) {
 
 // ── Main Dashboard ────────────────────────────────────────────────────────────
 export default function ClientDashboard() {
-  const [view,    setView]    = useState("grid");
-  const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState(null);
-  const [user,    setUser]    = useState(null);
-  const [steps,   setSteps]   = useState(null);
-  const [jobs,    setJobs]    = useState([]);
+  const [view, setView] = useState("grid");
+  const { user, loading: authLoading } = useAuth();
+  
+  const { 
+    data: steps, 
+    loading: stepsLoading, 
+    error: stepsError 
+  } = useFetch(getOnboardingStatus);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const [userData, stepsData, jobsData] = await Promise.all([
-          getClientProfile(),
-          getOnboardingStatus(),
-          getClientJobs()
-        ]);
-        setUser(userData);
-        console.log("DEBUG: User Profile Data:", userData);
-        setSteps(stepsData);
-        setJobs(jobsData);
-      } catch (err) {
-        console.error("Dashboard Fetch Error:", err);
-        setError(err.response?.data?.message || err.message || "Failed to load dashboard data.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { 
+    data: jobsData, 
+    loading: jobsLoading, 
+    error: jobsError 
+  } = useFetch(getClientJobs);
 
-    fetchData();
-  }, []);
+  const loading = authLoading || stepsLoading || jobsLoading;
+  const error = stepsError || jobsError;
+  const jobs = jobsData || [];
 
   const stepCards = steps
     ? [
@@ -416,9 +404,6 @@ export default function ClientDashboard() {
           font-size: 0.9rem;
         }
       `}</style>
-
-      {/* Navbar is expected to be global or passed user info */}
-      <Navbar role="client" user={user} />
 
       <main className="cd-main">
 

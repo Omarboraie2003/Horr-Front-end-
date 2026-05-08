@@ -6,22 +6,27 @@ import SignUpPage from '../features/auth/pages/SignUpPage';
 import LoginPage from '../features/auth/pages/LoginPage';
 import ClientDashboard from '../features/dashboard/pages/ClientDashboard';
 import { PostJobPage } from '../features/jobs';
+import SettingsPage from '../features/account/pages/SettingsPage';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route element={<AuthLayout />}>
-        {/* Auth routes will go here */}
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
       </Route>
 
-      <Route element={<MainLayout />}>
-        {/* Main app routes will go here */}
-        <Route path="/client/dashboard" element={<ClientDashboard />} />
-        <Route path="/client/post-job" element={<PostJobPage />} />
-        <Route path="/" element={<Navigate to="/client/dashboard" replace />} />
+      {/* Protected Routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<MainLayout />}>
+          <Route path="/client/dashboard" element={<ClientDashboard />} />
+          <Route path="/client/post-job" element={<PostJobPage />} />
+          <Route path="/client/settings" element={<SettingsPage />} />
+        </Route>
       </Route>
+
+      <Route path="/" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 };
