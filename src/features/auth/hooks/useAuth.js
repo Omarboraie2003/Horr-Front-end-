@@ -7,7 +7,11 @@ import { fetchMe, logout as logoutThunk } from "../authSlice";
  */
 export default function useAuth() {
   const dispatch = useDispatch();
-  const { user, loading, error, isAuthenticated, isInitialized } = useSelector((state) => state.auth);
+  const { user, loading, error, isInitialized } = useSelector((state) => state.auth);
+  
+  // Instant check: If there is no token in localStorage, we are definitely not authenticated
+  const hasToken = !!localStorage.getItem('token');
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated) && hasToken;
 
   const refreshUser = () => {
     dispatch(fetchMe());

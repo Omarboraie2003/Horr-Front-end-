@@ -21,12 +21,12 @@ export const logout = createAsyncThunk(
     try {
       await logoutUser();
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      window.location.replace('/login');
       return null;
     } catch (err) {
       // Even if API fails, we clear local storage and redirect
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      window.location.replace('/login');
       return rejectWithValue(err.response?.data || err.message);
     }
   }

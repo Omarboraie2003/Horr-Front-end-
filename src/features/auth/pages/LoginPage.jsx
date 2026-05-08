@@ -1,5 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import useAuth from "../../auth/hooks/useAuth";
+import { fetchMe } from "../../auth/authSlice";
 import logo from "../../../assets/images/Horr logo.png";
 import { login } from "../../../services/authService";
 
@@ -42,11 +45,34 @@ function MicrosoftIcon() {
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useAuth();
   const [role, setRole] = useState("freelancer");
   const [showPass, setShowPass] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState([]);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/client/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // History Trap: Prevent going back after logout
+  useEffect(() => {
+    // Push a new state to the history
+    window.history.pushState(null, null, window.location.href);
+    
+    const handlePopState = () => {
+      // If they try to go back, push them forward again
+      window.history.pushState(null, null, window.location.href);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -64,6 +90,10 @@ export default function LoginPage() {
       const response = await login(payload);
       // Backend returns the token directly on success
       localStorage.setItem("token", response);
+      
+      // Update Redux state immediately
+      await dispatch(fetchMe());
+      
       navigate("/client/dashboard");
     } catch (err) {
       console.error("Full Login Error:", err);
