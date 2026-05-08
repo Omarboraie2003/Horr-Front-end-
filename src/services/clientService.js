@@ -43,6 +43,11 @@ export const updateLocation = async (locationData) => {
   return response.data;
 };
 
+export const logoutUser = async () => {
+  const response = await apiClient.post(ENDPOINTS.AUTH.LOGOUT);
+  return response.data;
+};
+
 export const changePassword = async (passwords) => {
   const response = await apiClient.post(ENDPOINTS.AUTH.CHANGE_PASSWORD, passwords);
   return response.data;

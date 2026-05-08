@@ -22,9 +22,11 @@ export const ENDPOINTS = {
     WALLET_BALANCE: '/Billing/wallet-balance',
   },
   AUTH: {
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    CHANGE_PASSWORD: '/auth/change-password',
+    LOGIN: '/Auth/login',
+    REGISTER: '/Auth/register',
+    CHANGE_PASSWORD: '/Auth/change-password',
+    REFRESH_TOKEN: '/Auth/refresh-token',
+    LOGOUT: '/Auth/logout',
   },
   JOBS: {
     CREATE: '/Jobs/create-job',

@@ -1,8 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
+import authReducer from '../features/auth/authSlice';
 
 export const store = configureStore({
   reducer: {
-    _placeholder: (state = {}) => state,
+    auth: authReducer,
+    // Add other slices here as they are developed
   },
 });
 

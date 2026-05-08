@@ -1,45 +1,36 @@
-import { useState, useEffect } from "react";
-import { getClientProfile } from "../../../services/clientService";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMe, logout as logoutThunk } from "../authSlice";
 
 /**
- * useAuth - Hook to manage global authentication state.
- * Currently simplified to fetch the client profile.
+ * useAuth - Hook to manage global authentication state using Redux.
  */
 export default function useAuth() {
-  const [user,    setUser]    = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState(null);
+  const dispatch = useDispatch();
+  const { user, loading, error, isAuthenticated, isInitialized } = useSelector((state) => state.auth);
 
-  const fetchUser = async () => {
-    setLoading(true);
-    try {
-      const data = await getClientProfile();
-      setUser(data);
-    } catch (err) {
-      console.error("Auth Error:", err);
-      setError(err);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
+  const refreshUser = () => {
+    dispatch(fetchMe());
+  };
+
+  const logout = () => {
+    dispatch(logoutThunk());
   };
 
   useEffect(() => {
-    fetchUser();
-  }, []);
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
-  };
+    // Only fetch if we haven't initialized yet and not currently loading
+    if (!isInitialized && !loading && !user) {
+      dispatch(fetchMe());
+    }
+  }, [dispatch, isInitialized, loading, user]);
 
   return { 
     user, 
     loading, 
     error, 
-    isAuthenticated: !!user,
-    role: user?.role || "client", // Default to client for now
+    isAuthenticated,
+    role: user?.role || "client", 
     logout,
-    refreshUser: fetchUser 
+    refreshUser 
   };
 }
